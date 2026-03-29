@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReplyWise - Score Your Emails Before You Send</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark-bg: #0a0a0f;
+            --dark-secondary: #16161e;
+            --dark-tertiary: #25252e;
+            --text-primary: #ffffff;
+            --text-secondary: #c0c0c7;
+            --accent-indigo: #6366f1;
+            --accent-purple: #8b5cf6;
+            --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+            padding: 0.75rem 2rem;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        header.visible {
+            transform: translateY(0);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-indigo);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            padding: 6rem 2rem 4rem;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 900px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--accent-gradient);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Gmail Mockup */
+        .hero-mockup {
+            margin-top: 4rem;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards 0.2s both;
+        }
+
+        .gmail-container {
+            background: var(--dark-secondary);
+            border-radius: 12px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 2rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .gmail-header {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .dot:nth-child(1) { background: #ff5f56; }
+        .dot:nth-child(2) { background: #ffbd2e; }
+        .dot:nth-child(3) { background: #27c93f; }
+
+        .compose-field {
+            background: var(--dark-tertiary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        .compose-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .compose-input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            width: 100%;
+            font-family: inherit;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        .reply-wise-widget {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid var(--accent-indigo);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .widget-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .widget-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-gradient);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .widget-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .score-bar {
+            background: var(--dark-tertiary);
+            border-radius: 8px;
+            height: 8px;
+            margin: 0.75rem 0;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: var(--accent-gradient);
+            width: 78%;
+            border-radius: 8px;
+        }
+
+        .score-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .score-value {
+            color: var(--accent-indigo);
+            font-weight: 600;
+        }
+
+        .widget-insights {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        .insight-item {
+            margin: 0.5rem 0;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .insight-badge {
+            color: var(--accent-indigo);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        /* Sections */
+        section {
+            padding: 6rem 2rem;
+        }
+
+        section h2 {
+            font-size: clamp(2rem, 5vw, 2.5rem);
+            text-align: center;
+            margin-bottom: 3rem;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            font-size: 1.0625rem;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            background: var(--dark-secondary);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            text-align: center;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .step:nth-child(1) { animation-delay: 0.1s; }
+        .step:nth-child(2) { animation-delay: 0.2s; }
+        .step:nth-child(3) { animation-delay: 0.3s; }
+
+        .step-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .step h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .step p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Who It's For */
+        .who-its-for {
+            background: var(--dark-bg);
+        }
+
+        .use-cases {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .use-case-card {
+            background: var(--dark-secondary);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .use-case-card:nth-child(1) { animation-delay: 0.1s; }
+        .use-case-card:nth-child(2) { animation-delay: 0.15s; }
+        .use-case-card:nth-child(3) { animation-delay: 0.2s; }
+        .use-case-card:nth-child(4) { animation-delay: 0.25s; }
+        .use-case-card:nth-child(5) { animation-delay: 0.3s; }
+        .use-case-card:nth-child(6) { animation-delay: 0.35s; }
+
+        .use-case-card:hover {
+            border-color: var(--accent-indigo);
+            background: linear-gradient(135deg, var(--dark-secondary), rgba(99, 102, 241, 0.05));
+            transform: translateY(-4px);
+        }
+
+        .use-case-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .use-case-card h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .use-case-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Features */
+        .features {
+            background: var(--dark-secondary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .feature {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .feature:nth-child(1) { animation-delay: 0.1s; }
+        .feature:nth-child(2) { animation-delay: 0.15s; }
+        .feature:nth-child(3) { animation-delay: 0.2s; }
+        .feature:nth-child(4) { animation-delay: 0.25s; }
+        .feature:nth-child(5) { animation-delay: 0.3s; }
+        .feature:nth-child(6) { animation-delay: 0.35s; }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--accent-gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .feature p {
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+            line-height: 1.6;
+        }
+
+        /* Privacy Section */
+        .privacy {
+            background: var(--dark-bg);
+        }
+
+        .privacy-content {
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .privacy h2 {
+            margin-bottom: 1.5rem;
+        }
+
+        .privacy-items {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .privacy-item {
+            background: var(--dark-secondary);
+            border-left: 4px solid var(--accent-indigo);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .privacy-item h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            color: var(--accent-indigo);
+        }
+
+        .privacy-item p {
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+            line-height: 1.6;
+        }
+
+        /* Pricing */
+        .pricing {
+            background: var(--dark-secondary);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .pricing-card {
+            background: var(--dark-bg);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            border-radius: 12px;
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .pricing-card:nth-child(1) { animation-delay: 0.1s; }
+        .pricing-card:nth-child(2) { animation-delay: 0.2s; }
+        .pricing-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .pricing-card.featured {
+            border-color: var(--accent-indigo);
+            background: linear-gradient(135deg, var(--dark-bg), rgba(99, 102, 241, 0.1));
+            transform: scale(1.05);
+        }
+
+        .pricing-card:hover {
+            border-color: var(--accent-indigo);
+        }
+
+        .pricing-badge {
+            display: inline-block;
+            background: var(--accent-gradient);
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .pricing-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-period {
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features li {
+            padding: 0.75rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--accent-indigo);
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .pricing-card .cta-button {
+            width: 100%;
+            text-align: center;
+            display: block;
+        }
+
+        /* FAQ */
+        .faq {
+            background: var(--dark-bg);
+        }
+
+        .faq-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: var(--dark-secondary);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .faq-question:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .faq-icon {
+            transition: transform 0.3s ease;
+            color: var(--accent-indigo);
+            font-weight: 700;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+        }
+
+        .faq-answer-content {
+            padding: 0 1.5rem 1.5rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark-secondary);
+            border-top: 1px solid rgba(99, 102, 241, 0.1);
+            padding: 3rem 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9375rem;
+            display: block;
+            margin-bottom: 0.75rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--accent-indigo);
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(99, 102, 241, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-copyright {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .footer-tagline {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 5rem 1rem 3rem;
+            }
+
+            .hero h1 {
+                margin-bottom: 1.5rem;
+            }
+
+            .hero-mockup {
+                margin-top: 3rem;
+            }
+
+            section {
+                padding: 4rem 1rem;
+            }
+
+            section h2 {
+                margin-bottom: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .gmail-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="header-content">
+            <div class="logo">ReplyWise</div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Stop guessing.<br>Start knowing.</h1>
+            <p class="hero-subtitle">ReplyWise scores your emails in real-time, tracks what gets replies, and learns from thousands of outcomes to tell you exactly what works.</p>
+            <a href="https://chrome.google.com/webstore" class="cta-button" id="cta-main">Add to Chrome — It's Free</a>
+
+            <!-- Waitlist Capture -->
+            <div class="waitlist-form" id="waitlist-hero">
+                <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Join the waitlist — be first to get access:</p>
+                <form id="waitlist-form-hero" style="display: flex; gap: 0.5rem; max-width: 480px; margin: 0 auto;">
+                    <input type="email" placeholder="your@email.com" required
+                        style="flex: 1; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(99,102,241,0.3); background: var(--dark-secondary); color: white; font-family: inherit; font-size: 0.95rem; outline: none; transition: border-color 0.3s;">
+                    <button type="submit"
+                        style="padding: 0.75rem 1.5rem; border-radius: 8px; border: none; background: var(--accent-gradient); color: white; font-family: inherit; font-weight: 600; font-size: 0.95rem; cursor: pointer; white-space: nowrap; transition: transform 0.2s, box-shadow 0.2s;"
+                        onmouseover="this.style.transform='scale(1.03)';this.style.boxShadow='0 4px 20px rgba(99,102,241,0.4)'"
+                        onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'">Get Early Access</button>
+                </form>
+                <p id="waitlist-success-hero" style="display:none; color: #22c55e; margin-top: 0.75rem; font-weight: 500;">You're on the list! We'll email you when ReplyWise is ready.</p>
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem; opacity: 0.7;">No spam. Just a launch notification.</p>
+            </div>
+
+            <div class="hero-mockup">
+                <div class="gmail-container">
+                    <div class="gmail-header">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+
+                    <div class="compose-field">
+                        <label class="compose-label">To:</label>
+                        <input type="text" class="compose-input" value="hiring@company.com" readonly>
+                    </div>
+
+                    <div class="compose-field">
+                        <label class="compose-label">Subject:</label>
+                        <input type="text" class="compose-input" value="Product Manager Role — Quick Question" readonly>
+                    </div>
+
+                    <div class="compose-field">
+                        <label class="compose-label">Message:</label>
+                        <textarea class="compose-input" style="resize: none; height: 60px;" readonly>Hi there! I've been following your company's work on AI infrastructure and I think there's a unique opportunity to...
+                        </textarea>
+                    </div>
+
+                    <div class="reply-wise-widget">
+                        <div class="widget-header">
+                            <div class="widget-icon">✓</div>
+                            <div class="widget-title">ReplyWise Score</div>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill"></div>
+                        </div>
+                        <div class="score-text">
+                            <span>Email Quality</span>
+                            <span class="score-value">78/100</span>
+                        </div>
+                        <div class="widget-insights">
+                            <div class="insight-item">
+                                <span class="insight-badge">✓</span>
+                                <span>Personalized opening increases reply rate by 34%</span>
+                            </div>
+                            <div class="insight-item">
+                                <span class="insight-badge">!</span>
+                                <span>Consider adding a specific call-to-action</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">✍️</div>
+                    <h3>Write your email</h3>
+                    <p>ReplyWise scores it in real-time as you type, giving you instant feedback on what works.</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">📨</div>
+                    <h3>Send & track</h3>
+                    <p>Automatically detects replies and outcomes, so you know exactly what landed.</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">📈</div>
+                    <h3>Get smarter</h3>
+                    <p>Learn what works from your data and the community. Improve with every send.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Who It's For -->
+    <section class="who-its-for" id="who-its-for">
+        <div class="container">
+            <h2>Who It's For</h2>
+            <div class="use-cases">
+                <div class="use-case-card">
+                    <div class="use-case-emoji">💼</div>
+                    <h3>Job Seekers</h3>
+                    <p>Know exactly what gets hiring managers to reply. Land more interviews.</p>
+                </div>
+                <div class="use-case-card">
+                    <div class="use-case-emoji">📸</div>
+                    <h3>UGC Creators</h3>
+                    <p>Land more brand deals with data-backed pitches that brands can't ignore.</p>
+                </div>
+                <div class="use-case-card">
+                    <div class="use-case-emoji">🚀</div>
+                    <h3>Founders</h3>
+                    <p>Write investor emails that actually get meetings. Close faster with proven language.</p>
+                </div>
+                <div class="use-case-card">
+                    <div class="use-case-emoji">🎯</div>
+                    <h3>Freelancers</h3>
+                    <p>Close more clients with proven outreach patterns. Win the work you want.</p>
+                </div>
+                <div class="use-case-card">
+                    <div class="use-case-emoji">📊</div>
+                    <h3>Sales Pros</h3>
+                    <p>Outperform your quota with real reply data. Every email counts.</p>
+                </div>
+                <div class="use-case-card">
+                    <div class="use-case-emoji">⭐</div>
+                    <h3>Anyone</h3>
+                    <p>If the reply matters, ReplyWise helps. It's that simple.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2>Powerful Features</h2>
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Real-time Scoring</h3>
+                    <p>Works in Gmail, Outlook, Yahoo, and ProtonMail. Score as you write.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Automatic Reply Tracking</h3>
+                    <p>Track replies, opens, and outcomes without lifting a finger.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h3>Personal Analytics</h3>
+                    <p>See your reply rate, best performing templates, and trends over time.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Collective Intelligence</h3>
+                    <p>Learn from anonymized patterns across thousands of successful emails.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Privacy-First</h3>
+                    <p>Your emails stay yours. We never store email content, only patterns.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🚀</div>
+                    <h3>AI-Powered Insights</h3>
+                    <p>Get actionable suggestions to improve your reply rate instantly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Privacy Section -->
+    <section class="privacy">
+        <div class="container">
+            <div class="privacy-content">
+                <h2>Your Emails Stay Yours</h2>
+                <p class="section-subtitle">We're obsessed with privacy. ReplyWise never stores email content, only anonymized patterns.</p>
+
+                <div class="privacy-items">
+                    <div class="privacy-item">
+                        <h4>No Content Storage</h4>
+                        <p>We analyze your emails in real-time but never store the actual text. Only patterns and metadata are used.</p>
+                    </div>
+                    <div class="privacy-item">
+                        <h4>GDPR & CCPA Compliant</h4>
+                        <p>Full compliance with international privacy regulations. Your data is your data.</p>
+                    </div>
+                    <div class="privacy-item">
+                        <h4>Anonymized Collective Learning</h4>
+                        <p>Contribute to the community's knowledge without revealing anything about your emails.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <h2>Simple, Transparent Pricing</h2>
+            <p class="section-subtitle">No surprise fees. Cancel anytime. All plans include email support.</p>
+
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3 class="pricing-title">Free</h3>
+                    <div class="pricing-price">$0</div>
+                    <p class="pricing-period">Forever</p>
+                    <ul class="pricing-features">
+                        <li>3 audits per month</li>
+                        <li>Basic scoring</li>
+                        <li>Reply tracking</li>
+                        <li>Gmail, Outlook, Yahoo</li>
+                    </ul>
+                    <a href="https://chrome.google.com/webstore" class="cta-button">Get Started</a>
+                </div>
+
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">Most Popular</div>
+                    <h3 class="pricing-title">Pro</h3>
+                    <div class="pricing-price">$19</div>
+                    <p class="pricing-period">per month, billed annually</p>
+                    <ul class="pricing-features">
+                        <li>Unlimited audits</li>
+                        <li>Historical scanning</li>
+                        <li>Collective insights</li>
+                        <li>Advanced analytics</li>
+                        <li>Priority support</li>
+                        <li>All email providers</li>
+                    </ul>
+                    <a href="https://chrome.google.com/webstore" class="cta-button">Start Free Trial</a>
+                </div>
+
+                <div class="pricing-card">
+                    <h3 class="pricing-title">Teams</h3>
+                    <div class="pricing-price">$49</div>
+                    <p class="pricing-period">per month, per team</p>
+                    <ul class="pricing-features">
+                        <li>Everything in Pro</li>
+                        <li>Team benchmarks</li>
+                        <li>Shared dashboard</li>
+                        <li>Up to 10 users</li>
+                        <li>Team templates</li>
+                        <li>Dedicated support</li>
+                    </ul>
+                    <a href="https://chrome.google.com/webstore" class="cta-button">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq" id="faq">
+        <div class="container">
+            <h2>Frequently Asked Questions</h2>
+
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How does ReplyWise score my emails?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            ReplyWise uses machine learning trained on thousands of real email outcomes to score your emails across dimensions like personalization, clarity, call-to-action strength, and more. We analyze the patterns that actually correlate with replies and engagement.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What email providers does ReplyWise work with?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            ReplyWise works with Gmail, Outlook, Yahoo Mail, and ProtonMail. We're constantly adding support for more providers. The free plan includes Gmail and Outlook, while Pro and Teams plans unlock all supported providers.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do you track replies?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            ReplyWise automatically detects replies to your emails using thread detection and smart parsing. We use unique markers to match replies to the original emails you sent. All without storing your email content.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Is my data really private?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Absolutely. We never store your actual email content. We only analyze patterns in real-time and store anonymized metadata. Your emails never leave your mailbox. We're GDPR and CCPA compliant, and we never sell your data.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can I use ReplyWise on multiple devices?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes! Your ReplyWise account syncs across all your devices. Install the Chrome extension on any device, sign in with your account, and your data and settings are available everywhere.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="https://chrome.google.com/webstore">Chrome Web Store</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Status</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">GDPR</a></li>
+                    <li><a href="#">Cookies</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <ul>
+                    <li><a href="#">Twitter</a></li>
+                    <li><a href="#">LinkedIn</a></li>
+                    <li><a href="#">GitHub</a></li>
+                    <li><a href="#">Email</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p class="footer-copyright">&copy; 2026 ReplyWise. All rights reserved.</p>
+            <p class="footer-tagline">
+                <span>🔒</span>
+                Built with privacy in mind.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Sticky header on scroll
+        const header = document.getElementById('header');
+        let lastScrollTop = 0;
+
+        window.addEventListener('scroll', () => {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            if (scrollTop > 100) {
+                header.classList.add('visible');
+            } else {
+                header.classList.remove('visible');
+            }
+
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        });
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = entry.target.style.animation || 'fadeInUp 0.6s ease forwards';
+                }
+            });
+        }, observerOptions);
+
+        // FAQ accordion
+        const faqItems = document.querySelectorAll('.faq-item');
+
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            question.addEventListener('click', () => {
+                // Close other items
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item) {
+                        otherItem.classList.remove('active');
+                    }
+                });
+
+                // Toggle current item
+                item.classList.toggle('active');
+            });
+        });
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#' && document.querySelector(href)) {
+                    e.preventDefault();
+                    document.querySelector(href).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        // Waitlist form handling
+        document.querySelectorAll('form[id^="waitlist-form"]').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = this.querySelector('input[type="email"]').value;
+                // Store locally for now - replace with your backend endpoint later
+                const waitlist = JSON.parse(localStorage.getItem('rw_waitlist') || '[]');
+                waitlist.push({ email, timestamp: new Date().toISOString() });
+                localStorage.setItem('rw_waitlist', JSON.stringify(waitlist));
+
+                // Show success
+                this.style.display = 'none';
+                const successEl = this.parentElement.querySelector('[id^="waitlist-success"]');
+                if (successEl) successEl.style.display = 'block';
+
+                // Optional: Send to a webhook (uncomment and add your endpoint)
+                // fetch('https://your-backend.com/api/waitlist', {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify({ email })
+                // }).catch(() => {});
+            });
+        });
+    </script>
+</body>
+</html>
